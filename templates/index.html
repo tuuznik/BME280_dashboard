@@ -1,11 +1,380 @@
-{% extends 'base.html' %}
-
-{% block head %}
-<title>BME280 Dashboard</title>
-{% endblock %}
-
-{% block body %}
-<div class="content">
-    <h1>Hello world!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BME280 Dashboard</title>
+    <!--suppress JSUnresolvedLibraryURL -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css"
+          integrity="sha512-T584yQ/tdRR5QwOpfvDfVQUidzfgc2339Lc8uBDtcp/wYu80d7jwBgAxbyMh0a9YM9F8N3tdErpFI8iaGx6x5g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <!--suppress JSUnresolvedLibraryURL -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css"
+          integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+</head>
+<body>
+<div style="position:relative; text-align:center;color:rgb(100, 100, 100);"> 
+    <!-- font-family: Arial, Helvetica, sans-serif -->
+    <br><h1>BME280 Measurements Dashboard</h1>
 </div>
-{% endblock %}
+
+
+<div style="display:inline-block; position:relative; text-align:center;color:rgb(100, 100, 100); height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
+    <!-- <h3>Temperature</h3> -->
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2>Temperature</h2><br>
+                <h1 class="sensor1">Sensor :</h1>
+            </div>
+            <br>
+
+        </div>
+    </div>
+
+    <style>
+
+        .jumbotron{
+            widows: 150px;
+            height: 220px;
+            justify-content: center;
+        }
+
+        .row{
+            justify-content: center;
+        }
+
+    </style>
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-temperature">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div style="display:inline-block; position:relative; text-align:center;color:rgb(100, 100, 100); height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
+    <!-- <h3>Temperature</h3> -->
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2>Barometric Pressure</h2><br>
+                <h1 class="sensor2">Sensor :</h1>
+            </div>
+            <br>
+
+        </div>
+    </div>
+
+    <style>
+
+        .jumbotron{
+            widows: 150px;
+            height: 220px;
+            justify-content: center;
+        }
+
+        .row{
+            justify-content: center;
+        }
+
+    </style>
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-temperature">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display:inline-block; position:relative; text-align:center;color:rgb(100, 100, 100); height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
+    <!-- <h3>Temperature</h3> -->
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2>Humidity</h2><br>
+                <h1 class="sensor3">Sensor :</h1>
+            </div>
+            <br>
+
+        </div>
+    </div>
+
+    <style>
+
+        .jumbotron{
+            widows: 300px;
+            height: 220px;
+            justify-content: center;
+        }
+
+        .row{
+            justify-content: center;
+        }
+
+    </style>
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-temperature">
+
+            </div>
+        </div>
+    </div> 
+</div>
+
+
+<div>
+    <div class="chart-container" style="display:inline-block; position:relative; text-align:left; height: 45vh; width: 32vw;padding-left: 40px;">
+        <canvas id="layanan" width="300" height="170"></canvas>
+    </div>
+
+    <div class="chart-container" style="display:inline-block; position:relative; text-align:left; height: 45vh; width: 32vw;padding-left: 40px;">
+        <canvas id="layanan_subbagian" width="300" height="170"></canvas>
+    </div>
+
+    <div class="chart-container" style="display:inline-block; position:relative; text-align:left; height: 45vh; width: 32vw;padding-left: 40px;">
+        <canvas id="layanan_subbagian3" width="300" height="170"></canvas>
+    </div>
+</div>
+
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/js/bootstrap.bundle.min.js"
+        integrity="sha512-mULnawDVcCnsk9a4aG1QLZZ6rcce/jSzEGqUkeOLy0b6q0+T6syHrxlsAGH7ZVoqC93Pd0lBqd6WguPWih7VHA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
+        integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function () {
+        const config = {
+            type: 'line',
+            data: {
+                labels: Array(30).fill("00:00:00"),
+                // labels: Array(30).fill("0000-00-00 00:00:00"),
+                datasets: [{
+                    label: "Temperature",
+                    backgroundColor: 'rgb(109, 89, 122)',
+                    borderColor: 'rgb(109, 89, 122)',
+                    data: Array(30).fill(null),
+                    fill: false,
+                }],
+            },
+            options: {
+                legend: {
+                    position: 'top'
+                },
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Temperature measurement'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const context = document.getElementById('layanan').getContext('2d');
+        context.height = 500;
+
+        const lineChart = new Chart(context, config);
+        
+        const source = new EventSource("/chart-data");
+
+        source.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (config.data.labels.length === 30) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
+            }
+            config.data.labels.push(data.time);
+            config.data.datasets[0].data.push(data.value);
+            lineChart.update();
+            $(".sensor1").text("");
+            $(".sensor1").text(Math.round(data.value) );
+        }
+
+        // Pressure chart
+
+        const config2 = {
+            type: 'line',
+            data: {
+                // labels: Array(30).fill("0000-00-00 00:00:00"),
+                labels: Array(30).fill("00:00:00"),
+                datasets: [{
+                    label: "Barometric Pressure",
+                    backgroundColor: 'rgb(181, 101, 118)',
+                    borderColor: 'rgb(181, 101, 118)',
+                    data: Array(30).fill(null),
+                    fill: false,
+                }],
+            },
+            options: {
+                legend: {
+                    position: 'top'
+                },
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Barometric pressure measurement'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const context2 = document.getElementById('layanan_subbagian').getContext('2d');
+
+        const lineChart2 = new Chart(context2, config2);
+
+        const source2 = new EventSource("/chart-data");
+
+        source2.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (config2.data.labels.length === 30) {
+                config2.data.labels.shift();
+                config2.data.datasets[0].data.shift();
+            }
+            config2.data.labels.push(data.time);
+            config2.data.datasets[0].data.push(data.value);
+            lineChart2.update();
+            $(".sensor2").text("");
+            $(".sensor2").text(Math.round(data.value) );
+        }
+
+        // Humidity chart
+
+        const config3 = {
+            type: 'line',
+            data: {
+                // labels: Array(30).fill("0000-00-00 00:00:00"),
+                labels: Array(30).fill("00:00:00"),
+                datasets: [{
+                    label: "Humidity",
+                    backgroundColor: 'rgb(229, 107, 111)',
+                    borderColor: 'rgb(229, 107, 111)',
+                    data: Array(30).fill(null),
+                    fill: false,
+                }],
+            },
+            options: {
+                legend: {
+                    position: 'top'
+                },
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Humidity measurement'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const context3 = document.getElementById('layanan_subbagian3').getContext('2d');
+
+        const lineChart3 = new Chart(context3, config3);
+
+        const source3 = new EventSource("/chart-data");
+
+        source3.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (config3.data.labels.length === 30) {
+                config3.data.labels.shift();
+                config3.data.datasets[0].data.shift();
+            }
+            config3.data.labels.push(data.time);
+            config3.data.datasets[0].data.push(data.value);
+            lineChart3.update();
+            $(".sensor3").text("");
+            $(".sensor3").text(Math.round(data.value) );
+        }
+    });
+</script>
+</body>
+</html>
