@@ -13,130 +13,37 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
 </head>
 <body>
-<div style="position:relative; text-align:center;color:rgb(100, 100, 100);"> 
+<div style="position:relative; text-align:center;color:rgb(255, 255, 255); border: 15px solid rgb(234, 172, 139); background-color: rgb(234, 172, 139);"> 
     <!-- font-family: Arial, Helvetica, sans-serif -->
-    <br><h1>BME280 Measurements Dashboard</h1>
+    <br><h1>BME280 Measurements Dashboard</h1><br>
 </div>
 
 
-<div style="display:inline-block; position:relative; text-align:center;color:rgb(100, 100, 100); height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
-    <!-- <h3>Temperature</h3> -->
-    <div class="container-fluid">
+<div style="display:inline-block; position:relative; color:rgb(100, 100, 100); text-align:center; height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
 
-        <div class="row">
+    <h2 >Temperature</h2><br>
+    <h1 class="sensor1" style="font-size: 70px;">Sensor :</h1>
+    <br>
 
-            <div class="col-5 jumbotron p-2 mx-1">
-                <h2>Temperature</h2><br>
-                <h1 class="sensor1">Sensor :</h1>
-            </div>
-            <br>
-
-        </div>
-    </div>
-
-    <style>
-
-        .jumbotron{
-            widows: 150px;
-            height: 220px;
-            justify-content: center;
-        }
-
-        .row{
-            justify-content: center;
-        }
-
-    </style>
-
-    <div class="container-fluid">
-        <!-- Example row of columns -->
-        <div class="row">
-            <div class="container-fluid" id="data-temperature">
-
-            </div>
-        </div>
-    </div>
 </div>
 
+<div style="display:inline-block; position:relative; color:rgb(100, 100, 100); text-align:center; height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
 
-<div style="display:inline-block; position:relative; text-align:center;color:rgb(100, 100, 100); height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
-    <!-- <h3>Temperature</h3> -->
-    <div class="container-fluid">
+    <h2>Barometric Pressure</h2><br>
+    <h1 class="sensor2" style="font-size: 70px;">Sensor :</h1>
 
-        <div class="row">
+    <br>
 
-            <div class="col-5 jumbotron p-2 mx-1">
-                <h2>Barometric Pressure</h2><br>
-                <h1 class="sensor2">Sensor :</h1>
-            </div>
-            <br>
-
-        </div>
-    </div>
-
-    <style>
-
-        .jumbotron{
-            widows: 150px;
-            height: 220px;
-            justify-content: center;
-        }
-
-        .row{
-            justify-content: center;
-        }
-
-    </style>
-
-    <div class="container-fluid">
-        <!-- Example row of columns -->
-        <div class="row">
-            <div class="container-fluid" id="data-temperature">
-
-            </div>
-        </div>
-    </div>
 </div>
 
-<div style="display:inline-block; position:relative; text-align:center;color:rgb(100, 100, 100); height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
-    <!-- <h3>Temperature</h3> -->
-    <div class="container-fluid">
+<div style="display:inline-block; position:relative; color:rgb(100, 100, 100); text-align:center; height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
 
-        <div class="row">
+    <h2>Humidity</h2><br>
+    <h1 class="sensor3" style="font-size: 70px;">Sensor :</h1>
 
-            <div class="col-5 jumbotron p-2 mx-1">
-                <h2>Humidity</h2><br>
-                <h1 class="sensor3">Sensor :</h1>
-            </div>
-            <br>
+    <br>
 
-        </div>
-    </div>
-
-    <style>
-
-        .jumbotron{
-            widows: 300px;
-            height: 220px;
-            justify-content: center;
-        }
-
-        .row{
-            justify-content: center;
-        }
-
-    </style>
-
-    <div class="container-fluid">
-        <!-- Example row of columns -->
-        <div class="row">
-            <div class="container-fluid" id="data-temperature">
-
-            </div>
-        </div>
-    </div> 
 </div>
-
 
 <div>
     <div class="chart-container" style="display:inline-block; position:relative; text-align:left; height: 45vh; width: 32vw;padding-left: 40px;">
@@ -232,7 +139,7 @@
             config.data.datasets[0].data.push(data.value);
             lineChart.update();
             $(".sensor1").text("");
-            $(".sensor1").text(Math.round(data.value) );
+            $(".sensor1").text(Math.round(data.value) +" \u00B0 C");
         }
 
         // Pressure chart
@@ -302,7 +209,7 @@
             config2.data.datasets[0].data.push(data.value);
             lineChart2.update();
             $(".sensor2").text("");
-            $(".sensor2").text(Math.round(data.value) );
+            $(".sensor2").text(Math.round(data.value) + " hPa");
         }
 
         // Humidity chart
@@ -372,7 +279,7 @@
             config3.data.datasets[0].data.push(data.value);
             lineChart3.update();
             $(".sensor3").text("");
-            $(".sensor3").text(Math.round(data.value) );
+            $(".sensor3").text(Math.round(data.value) + "%  RH");
         }
     });
 </script>
