@@ -22,7 +22,15 @@ random.seed()
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html', turned_on="off")
+
+@app.route('/start', methods=['POST', 'GET'])
+def start():
+    return render_template('index.html', turned_on="on")
+
+@app.route('/stop', methods=['POST', 'GET'])
+def stop():
+    return render_template('index.html', turned_on="off")
 
 @app.route('/chart-data')
 def chart_data():

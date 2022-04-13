@@ -17,12 +17,53 @@
     <!-- font-family: Arial, Helvetica, sans-serif -->
     <br><h1>BME280 Measurements Dashboard</h1><br>
 </div>
+<!-- <div>
+    <a href="/start">Start</a>
+</div> -->
+<div class="text-box" style="text-align:center; padding-top: 40px; padding-bottom: 20px;">
+    <style>
+        .button1 {
+            background-color: #4CAF50;
+        }
+/* CSS */
+        .button-34 {
+        background: #b56576;
+        border-radius: 999px;
+        box-shadow: #b56576 0 10px 20px -10px;
+        box-sizing: border-box;
+        color: #FFFFFF;
+        cursor: pointer;
+        font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 24px;
+        opacity: 1;
+        outline: 0 solid transparent;
+        padding: 25px 50px;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        width: fit-content;
+        word-break: break-word;
+        border: 0;
+        margin-left: 30px;
+        margin-right: 30px;
+        }
 
+        a:hover {
+            color: rgb(236, 204, 187);
+        }
+
+    </style>
+    <br>
+    <a href="/start" class="button-34" role="button">Start</a>
+    <a href="/stop" class="button-34" role="button">Stop</a>
+</div>
 
 <div style="display:inline-block; position:relative; color:rgb(100, 100, 100); text-align:center; height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
 
     <h2 >Temperature</h2><br>
-    <h1 class="sensor1" style="font-size: 70px;">Sensor :</h1>
+    <h1 class="sensor1" style="font-size: 70px;">N/A</h1>
     <br>
 
 </div>
@@ -30,7 +71,7 @@
 <div style="display:inline-block; position:relative; color:rgb(100, 100, 100); text-align:center; height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
 
     <h2>Barometric Pressure</h2><br>
-    <h1 class="sensor2" style="font-size: 70px;">Sensor :</h1>
+    <h1 class="sensor2" style="font-size: 70px;">N/A</h1>
 
     <br>
 
@@ -39,7 +80,7 @@
 <div style="display:inline-block; position:relative; color:rgb(100, 100, 100); text-align:center; height: 10vh; width: 32vw;padding-left: 40px; padding-top: 40px;">
 
     <h2>Humidity</h2><br>
-    <h1 class="sensor3" style="font-size: 70px;">Sensor :</h1>
+    <h1 class="sensor3" style="font-size: 70px;">N/A</h1>
 
     <br>
 
@@ -71,8 +112,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
         integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script>
+<script id="charts" data="{{turned_on}}">
     $(document).ready(function () {
+
+        var script_tag = document.getElementById('charts');
+        var start = script_tag.getAttribute("data");
+
         const config = {
             type: 'line',
             data: {
@@ -123,23 +168,25 @@
         };
 
         const context = document.getElementById('layanan').getContext('2d');
-        context.height = 500;
 
         const lineChart = new Chart(context, config);
-        
-        const source = new EventSource("/chart-data");
 
-        source.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (config.data.labels.length === 30) {
-                config.data.labels.shift();
-                config.data.datasets[0].data.shift();
+        if (start.includes("on")){
+            const source = new EventSource("/chart-data");
+
+            source.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                if (config.data.labels.length === 30) {
+                    config.data.labels.shift();
+                    config.data.datasets[0].data.shift();
+                }
+                config.data.labels.push(data.time);
+                config.data.datasets[0].data.push(data.value);
+                lineChart.update();
+                $(".sensor1").text("");
+                $(".sensor1").text(Math.round(data.value) +" \u00B0 C");
             }
-            config.data.labels.push(data.time);
-            config.data.datasets[0].data.push(data.value);
-            lineChart.update();
-            $(".sensor1").text("");
-            $(".sensor1").text(Math.round(data.value) +" \u00B0 C");
+
         }
 
         // Pressure chart
@@ -196,22 +243,23 @@
         const context2 = document.getElementById('layanan_subbagian').getContext('2d');
 
         const lineChart2 = new Chart(context2, config2);
+        
+        if (start.includes("on")){
+            const source2 = new EventSource("/chart-data");
 
-        const source2 = new EventSource("/chart-data");
-
-        source2.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (config2.data.labels.length === 30) {
-                config2.data.labels.shift();
-                config2.data.datasets[0].data.shift();
+            source2.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                if (config2.data.labels.length === 30) {
+                    config2.data.labels.shift();
+                    config2.data.datasets[0].data.shift();
+                }
+                config2.data.labels.push(data.time);
+                config2.data.datasets[0].data.push(data.value);
+                lineChart2.update();
+                $(".sensor2").text("");
+                $(".sensor2").text(Math.round(data.value) + " hPa");
             }
-            config2.data.labels.push(data.time);
-            config2.data.datasets[0].data.push(data.value);
-            lineChart2.update();
-            $(".sensor2").text("");
-            $(".sensor2").text(Math.round(data.value) + " hPa");
         }
-
         // Humidity chart
 
         const config3 = {
@@ -267,19 +315,21 @@
 
         const lineChart3 = new Chart(context3, config3);
 
-        const source3 = new EventSource("/chart-data");
+        if (start.includes("on")){
+            const source3 = new EventSource("/chart-data");
 
-        source3.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (config3.data.labels.length === 30) {
-                config3.data.labels.shift();
-                config3.data.datasets[0].data.shift();
+            source3.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                if (config3.data.labels.length === 30) {
+                    config3.data.labels.shift();
+                    config3.data.datasets[0].data.shift();
+                }
+                config3.data.labels.push(data.time);
+                config3.data.datasets[0].data.push(data.value);
+                lineChart3.update();
+                $(".sensor3").text("");
+                $(".sensor3").text(Math.round(data.value) + "%  RH");
             }
-            config3.data.labels.push(data.time);
-            config3.data.datasets[0].data.push(data.value);
-            lineChart3.update();
-            $(".sensor3").text("");
-            $(".sensor3").text(Math.round(data.value) + "%  RH");
         }
     });
 </script>
