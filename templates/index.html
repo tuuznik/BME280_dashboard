@@ -172,7 +172,7 @@
         const lineChart = new Chart(context, config);
 
         if (start.includes("on")){
-            const source = new EventSource("/chart-data");
+            const source = new EventSource("/temp-data");
 
             source.onmessage = function (event) {
                 const data = JSON.parse(event.data);
@@ -184,7 +184,7 @@
                 config.data.datasets[0].data.push(data.value);
                 lineChart.update();
                 $(".sensor1").text("");
-                $(".sensor1").text(Math.round(data.value) +" \u00B0 C");
+                $(".sensor1").text(Math.round(data.value*100)/100 +" \u00B0 C");
             }
 
         }
@@ -245,7 +245,7 @@
         const lineChart2 = new Chart(context2, config2);
         
         if (start.includes("on")){
-            const source2 = new EventSource("/chart-data");
+            const source2 = new EventSource("/pressure-data");
 
             source2.onmessage = function (event) {
                 const data = JSON.parse(event.data);
@@ -257,7 +257,7 @@
                 config2.data.datasets[0].data.push(data.value);
                 lineChart2.update();
                 $(".sensor2").text("");
-                $(".sensor2").text(Math.round(data.value) + " hPa");
+                $(".sensor2").text(Math.round(data.value * 100)/100 + " hPa");
             }
         }
         // Humidity chart
@@ -316,7 +316,7 @@
         const lineChart3 = new Chart(context3, config3);
 
         if (start.includes("on")){
-            const source3 = new EventSource("/chart-data");
+            const source3 = new EventSource("/humidity-data");
 
             source3.onmessage = function (event) {
                 const data = JSON.parse(event.data);
@@ -328,7 +328,7 @@
                 config3.data.datasets[0].data.push(data.value);
                 lineChart3.update();
                 $(".sensor3").text("");
-                $(".sensor3").text(Math.round(data.value) + "%  RH");
+                $(".sensor3").text(Math.round(data.value*100)/100 + "%  RH");
             }
         }
     });
