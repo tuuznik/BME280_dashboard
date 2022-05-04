@@ -1,4 +1,6 @@
 import json
+import io
+import csv
 import time
 import subprocess
 import sqlite3 as sql
@@ -107,6 +109,33 @@ def humidity_data():
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
+
+@app.route('/download/')
+def download_report():
+    conn = None
+    cursor = None
+    try:
+        con = sql.connect('data.db')
+        c =  con.cursor() 
+        c.execute(f"SELECT * FROM temp_measurements")
+        result = c.fetchall()
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        line = ['ID, date, temperature']
+        writer.writerow(line)
+
+        for row in result:
+            print(row)
+            line = [str(row[0]) + ',' + row[1] + ',' + str(row[2])]
+            writer.writerow(line)
+
+        output.seek(0)
+            
+        return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=data.csv"})
+    except Exception as e:
+        print(e)
 
 if __name__ == "__main__":
     app.run(debug=True)
