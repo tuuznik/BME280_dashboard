@@ -1,6 +1,7 @@
 import json
 import time
-import subprocess 
+import subprocess
+import sqlite3 as sql
 from flask import Flask, Response, render_template, request, redirect, stream_with_context
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -13,15 +14,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 
 db = SQLAlchemy(app)
 
-class Measurements(db.Model):
+class TempMeasurements(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     measurement_date = db.Column(db.DateTime, default=datetime.utcnow)
     temperature = db.Column(db.Float, nullable=False)
+
+class PressureMeasurements(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    measurement_date = db.Column(db.DateTime, default=datetime.utcnow)
     pressure = db.Column(db.Float, nullable=False)
+    
+class HumidityMeasurements(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    measurement_date = db.Column(db.DateTime, default=datetime.utcnow)
     humidity = db.Column(db.Float, nullable=False)
 
-    def __repr__(self):
-        return f"<Measurement {self.id}>"
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -35,6 +42,16 @@ def start():
 def stop():
     return render_template('index.html', turned_on="off")
 
+def add_data(table, data_column_name, meas_data):  
+  try:
+    con = sql.connect('data.db')
+    c =  con.cursor() 
+    c.execute(f"INSERT INTO {table} (measurement_date, {data_column_name}) VALUES (datetime('now','localtime'), {meas_data})")
+    con.commit() 
+  except:
+    print("An error has occured")
+
+
 @app.route('/temp-data')
 def temperature_data():
     def read_data():
@@ -44,7 +61,7 @@ def temperature_data():
             temperature = int(output)/100
             json_data = json.dumps(
                     {'time': datetime.now().strftime('%H:%M:%S'), 'value': temperature})
-                # {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': random.random() * 100})
+            add_data("temp_measurements", "temperature", temperature)
             yield f"data:{json_data}\n\n"
             time.sleep(1)
 
@@ -60,10 +77,10 @@ def pressure_data():
             file = open("/sys/bus/i2c/devices/1-0077/pressure", 'r')
             output = file.read()
             pressure = int(output)/25600
-            print(pressure)
             json_data = json.dumps(
                     {'time': datetime.now().strftime('%H:%M:%S'), 'value': pressure})
                 # {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': random.random() * 100})
+            add_data("pressure_measurements", "pressure", pressure)
             yield f"data:{json_data}\n\n"
             time.sleep(1)
 
@@ -82,6 +99,7 @@ def humidity_data():
             json_data = json.dumps(
                     {'time': datetime.now().strftime('%H:%M:%S'), 'value': humidity})
                 # {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': random.random() * 100})
+            add_data("humidity_measurements", "humidity", humidity)
             yield f"data:{json_data}\n\n"
             time.sleep(1)
 
