@@ -117,18 +117,18 @@ def download_report():
     try:
         con = sql.connect('data.db')
         c =  con.cursor() 
-        c.execute(f"SELECT * FROM temp_measurements")
+        c.execute("SELECT humidity_measurements.id, humidity_measurements.measurement_date, humidity_measurements.humidity, pressure_measurements.pressure, temp_measurements.temperature FROM humidity_measurements JOIN pressure_measurements ON pressure_measurements.id = humidity_measurements.id JOIN temp_measurements ON temp_measurements.id = pressure_measurements.id;")
         result = c.fetchall()
 
         output = io.StringIO()
         writer = csv.writer(output)
 
-        line = ['ID, date, temperature']
+        line = ['ID, date, humidity, pressure, temperature']
         writer.writerow(line)
 
         for row in result:
             print(row)
-            line = [str(row[0]) + ',' + row[1] + ',' + str(row[2])]
+            line = [str(row[0]) + ',' + row[1] + ',' + str(row[2]) + ',' + str(row[3]) + ',' + str(row[4])]
             writer.writerow(line)
 
         output.seek(0)
