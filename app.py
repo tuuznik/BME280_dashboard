@@ -55,68 +55,35 @@ def add_data(table, data_column_name, meas_data):
     print("An error has occured")
 
 
-def read_data(file_name, table, data_column_name):
+def read_data(file_name, table, data_column_name, coef):
     while True:
         file = open(f"/sys/bus/i2c/devices/1-0077/{file_name}", 'r')
         output = file.read()
-        data = int(output)/1024
+        data = int(output)/coef
         json_data = json.dumps(
                 {'time': datetime.now().strftime('%H:%M:%S'), 'value': data})
-        add_data(f"{table}", {data_column_name}, data)
+        add_data(table, data_column_name, data)
         yield f"data:{json_data}\n\n"
         time.sleep(1)
 
 
 @app.route('/temp-data')
 def temperature_data():
-    # def read_data():
-    #     while True:
-    #         file = open("/sys/bus/i2c/devices/1-0077/temperature", 'r')
-    #         output = file.read()
-    #         temperature = int(output)/100
-    #         json_data = json.dumps(
-    #                 {'time': datetime.now().strftime('%H:%M:%S'), 'value': temperature})
-    #         add_data("temp_measurements", "temperature", temperature)
-    #         yield f"data:{json_data}\n\n"
-    #         time.sleep(1)
-
-    response = Response(stream_with_context(read_data("temperature", "temp_measurements", "temperature")), mimetype="text/event-stream")
+    response = Response(stream_with_context(read_data("temperature", "temp_measurements", "temperature", 100)), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
 @app.route('/pressure-data')
 def pressure_data():
-    def read_data():
-        while True:
-            file = open("/sys/bus/i2c/devices/1-0077/pressure", 'r')
-            output = file.read()
-            pressure = int(output)/25600
-            json_data = json.dumps(
-                    {'time': datetime.now().strftime('%H:%M:%S'), 'value': pressure})
-            add_data("pressure_measurements", "pressure", pressure)
-            yield f"data:{json_data}\n\n"
-            time.sleep(1)
-
-    response = Response(stream_with_context(read_data()), mimetype="text/event-stream")
+    response = Response(stream_with_context(read_data("pressure", "pressure_measurements", "pressure", 25600)), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
 @app.route('/humidity-data')
 def humidity_data():
-    def read_data():
-        while True:
-            file = open("/sys/bus/i2c/devices/1-0077/humidity", 'r')
-            output = file.read()
-            humidity = int(output)/1024
-            json_data = json.dumps(
-                    {'time': datetime.now().strftime('%H:%M:%S'), 'value': humidity})
-            add_data("humidity_measurements", "humidity", humidity)
-            yield f"data:{json_data}\n\n"
-            time.sleep(1)
-
-    response = Response(stream_with_context(read_data()), mimetype="text/event-stream")
+    response = Response(stream_with_context(read_data("humidity", "humidity_measurements", "humidity", 1024)), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
