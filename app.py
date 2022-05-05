@@ -88,6 +88,25 @@ def humidity_data():
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
+def delete_data_from_table(table_name: str):
+    conn = None
+    cursor = None
+    try:
+        con = sql.connect('data.db')
+        c =  con.cursor()
+        sql_cmd = f"DELETE FROM {table_name};"
+        c.execute(sql_cmd)
+        con.commit() 
+    except:
+        print("An error has occured")
+
+@app.route('/remove-data')
+def remove_data():
+    delete_data_from_table('temp_measurements')
+    delete_data_from_table('humidity_measurements')
+    delete_data_from_table('pressure_measurements')
+    return render_template('index.html', turned_on="off")
+
 @app.route('/download/')
 def download_report():
     conn = None
