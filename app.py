@@ -47,65 +47,43 @@ def stop():
 def add_data(table, data_column_name, meas_data):  
   try:
     con = sql.connect('data.db')
-    c =  con.cursor() 
-    c.execute(f"INSERT INTO {table} (measurement_date, {data_column_name}) VALUES (datetime('now','localtime'), {meas_data})")
+    c =  con.cursor()
+    sql_cmd = f"INSERT INTO {table} (measurement_date, {data_column_name}) VALUES (datetime('now','localtime'), {meas_data})"
+    c.execute(sql_cmd)
     con.commit() 
   except:
     print("An error has occured")
 
 
+def read_data(file_name, table, data_column_name, coef):
+    while True:
+        file = open(f"/sys/bus/i2c/devices/1-0077/{file_name}", 'r')
+        output = file.read()
+        data = int(output)/coef
+        json_data = json.dumps(
+                {'time': datetime.now().strftime('%H:%M:%S'), 'value': data})
+        add_data(table, data_column_name, data)
+        yield f"data:{json_data}\n\n"
+        time.sleep(1)
+
+
 @app.route('/temp-data')
 def temperature_data():
-    def read_data():
-        while True:
-            file = open("/sys/bus/i2c/devices/1-0077/temperature", 'r')
-            output = file.read()
-            temperature = int(output)/100
-            json_data = json.dumps(
-                    {'time': datetime.now().strftime('%H:%M:%S'), 'value': temperature})
-            add_data("temp_measurements", "temperature", temperature)
-            yield f"data:{json_data}\n\n"
-            time.sleep(1)
-
-    response = Response(stream_with_context(read_data()), mimetype="text/event-stream")
+    response = Response(stream_with_context(read_data("temperature", "temp_measurements", "temperature", 100)), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
 @app.route('/pressure-data')
 def pressure_data():
-    def read_data():
-        while True:
-            file = open("/sys/bus/i2c/devices/1-0077/pressure", 'r')
-            output = file.read()
-            pressure = int(output)/25600
-            json_data = json.dumps(
-                    {'time': datetime.now().strftime('%H:%M:%S'), 'value': pressure})
-                # {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': random.random() * 100})
-            add_data("pressure_measurements", "pressure", pressure)
-            yield f"data:{json_data}\n\n"
-            time.sleep(1)
-
-    response = Response(stream_with_context(read_data()), mimetype="text/event-stream")
+    response = Response(stream_with_context(read_data("pressure", "pressure_measurements", "pressure", 25600)), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
 
 @app.route('/humidity-data')
 def humidity_data():
-    def read_data():
-        while True:
-            file = open("/sys/bus/i2c/devices/1-0077/humidity", 'r')
-            output = file.read()
-            humidity = int(output)/1024
-            json_data = json.dumps(
-                    {'time': datetime.now().strftime('%H:%M:%S'), 'value': humidity})
-                # {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': random.random() * 100})
-            add_data("humidity_measurements", "humidity", humidity)
-            yield f"data:{json_data}\n\n"
-            time.sleep(1)
-
-    response = Response(stream_with_context(read_data()), mimetype="text/event-stream")
+    response = Response(stream_with_context(read_data("humidity", "humidity_measurements", "humidity", 1024)), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
@@ -116,8 +94,12 @@ def download_report():
     cursor = None
     try:
         con = sql.connect('data.db')
-        c =  con.cursor() 
-        c.execute("SELECT humidity_measurements.id, humidity_measurements.measurement_date, humidity_measurements.humidity, pressure_measurements.pressure, temp_measurements.temperature FROM humidity_measurements JOIN pressure_measurements ON pressure_measurements.id = humidity_measurements.id JOIN temp_measurements ON temp_measurements.id = pressure_measurements.id;")
+        c =  con.cursor()
+        sql_cmd = "SELECT humidity_measurements.id, humidity_measurements.measurement_date, humidity_measurements.humidity, " \
+                  "pressure_measurements.pressure, temp_measurements.temperature FROM humidity_measurements " \
+                  "JOIN pressure_measurements ON pressure_measurements.id = humidity_measurements.id " \
+                  "JOIN temp_measurements ON temp_measurements.id = pressure_measurements.id;"
+        c.execute(sql_cmd)
         result = c.fetchall()
 
         output = io.StringIO()
