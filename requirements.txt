@@ -1,0 +1,5 @@
+# BME280_dashboard/app.py: 7
+Flask == 2.1.1
+
+# BME280_dashboard/app.py: 8
+Flask_SQLAlchemy == 2.5.1
